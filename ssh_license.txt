@@ -1,0 +1,41 @@
+vi /tmp/reset.eval
+
+
+#!/bin/sh
+## remove license
+echo 'backup License file to /tmp'
+mv /etc/vmware/license.cfg /tmp/license.cfg.bkp
+## get a new trial license
+echo 'Copying new license'
+cp /etc/vmware/.#license.cfg /etc/vmware/license.cfg
+## restart services
+echo 'Restarting VPXA'
+/etc/init.d/vpxa restart
+
+
+chmod +x /tmp/reset.eval
+
+sh /tmp/reset.eval
+
+
+
+cd /var/spool/cron/crontabs/
+
+vi root
+
+#*    *    59  *   *   /tmp/reset.eval
+
+
+
+
+
+
+
+
+
+
+https://www.vmware.com/content/dam/digitalmarketing/vmware/en/pdf/products/nsx/vmw-nsx-network-virtualization-design-guide.pdf
+
+
+
+The vcenter server is not responding at the moment. How do you proceed. can you login remotely, have to have IP. Is there any scheduled protocol that you have
