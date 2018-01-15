@@ -1,0 +1,67 @@
+Docker:
+Docker is a containization platform which is used for running process or application or isolated units in user works space.
+It is the next step in virtualization.
+Virtualization 
+In Virtualization we have a bare metal (Hardware) on which we install the host operating system on this we install the hypervisor
+software like VM ware/oracle/virtual box etc on the hypervisor we install guset OS.On OS we can install the application that we require.
+These application have to communicate with multple layers in order to access the Hardware resources.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Docker solves this problem by using containers.Containers occupy very less space and memory>And they can be created in matter of seconds. Containers 
+care mostly useful in implementing micro services.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Docker uses a layer called docker engine which is directly installed on host OS.This Docker engine has the capacity of spinning multiple docker containers
+as individual process.The docker engine also takes care of the hardware resource allocation between the docker containners.
+
+
+
+
+https://www.webmd.com/baby/healthtool-ovulation-calculator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
