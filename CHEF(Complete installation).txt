@@ -1,0 +1,131 @@
+Installing Chef Server - Chef Node - Chef Workstation
+
+****************Chef server setup:*****************************
+
+Step1: Add chefdk, chef node network details to chef server /etc/hosts file
+syntax:
+Chefserver network details will already listed under chefserver /etc/hosts file
+<chefdk IP Address> <chefdk hostname>.jnittraining.com <chefdk hostname>
+<chefnode IP Address> <chefnode hostname>.jnittraining.com <chefnode hostname>
+#vi /etc/hosts
+172.16.103.159 TRNCLILNXRABAR04.jnittraining.com TRNCLILNXRABAR04 ### chefserver details
+172.16.103.158 TRNCLILNXRABAR03.jnittraining.com TRNCLILNXRABAR03 ### chefdk details
+172.16.103.160 TRNCLILNXRABAR05.jnittraining.com TRNCLILNXRABAR05 ### chefclient details
+:wq
+Step2: Download the chef-server package from https://downloads.chef.io/chef-server/
+# wget https://packages.chef.io/files/stable/chef-server/12.15.8/el/7/chef-server-core-12.15.8-1.el7.x86_64.rpm
+step3: install the chef-server package
+#rpm -ivh chef-server-core-12.15.8-1.el7.x86_64.rpm
+step4: Run the following command to create an administrator
+syntax:
+#chef-server-ctl user-create USER_NAME FIRST_NAME LAST_NAME EMAIL 'PASSWORD' --filename FILE_NAME
+example:
+#chef-server-ctl user-create stevedanno Steve Danno steved@chef.io 'root1234' --filename /root/stevedanno.pem
+
+step5: Run the following command to create an organization:
+syntax:
+#chef-server-ctl org-create short_name 'full_organization_name' --association_user user_name --filename ORGANIZATION-validator.pem
+example:
+#chef-server-ctl org-create 4thcoffee 'Fourth Coffee, Inc.' --association_user stevedanno --filename /path/to/4thcoffee-validator.pem
+step6: configuring chef manage
+#chef-server-ctl install chef-manage
+step7: Reconfigure chef-server
+#chef-server-ctl reconfigure
+#chef-manage-ctl reconfigure
+step8: configuring Chef Push Jobs
+#chef-server-ctl install opscode-push-jobs-server
+#chef-server-ctl reconfigure
+#opscode-push-jobs-server-ctl reconfigure
+step9: configuring Reporting
+#chef-server-ctl install opscode-reporting
+#chef-server-ctl reconfigure
+#opscode-reporting-ctl reconfigure
+
+**********************Chef node setup**********************************:
+
+syntax:
+Chefnode network details will already listed under chefnode /etc/hosts file
+<chefdk IP Address> <chefdk hostname>.jnittraining.com <chefdk hostname>
+<chefserver IP Address> <chefserver hostname>.jnittraining.com <chefserver hostname>
+step1: Add chef server, chef dk network details to chef node /etc/hosts file
+#vi /etc/hosts
+172.16.103.159 TRNCLILNXRABAR04.jnittraining.com TRNCLILNXRABAR04 ### chefserver details
+172.16.103.158 TRNCLILNXRABAR03.jnittraining.com TRNCLILNXRABAR03 ### chefdk details
+172.16.103.160 TRNCLILNXRABAR05.jnittraining.com TRNCLILNXRABAR05 ### chefclient details
+:wq
+
+*************************************Chef workstation setup**********************************************:
+step1: add chef server, chef node network details to chef dk /etc/hosts file
+syntax:
+Chefdk network details will already listed under chefdk /etc/hosts file
+<chefnode IP Address> <chefnode hostname>.jnittraining.com <chefnode hostname>
+<chefserver IP Address> <chefserver hostname>.jnittraining.com <chefserver hostname>
+
+#vi /etc/hosts
+172.16.103.159 TRNCLILNXRABAR04.jnittraining.com TRNCLILNXRABAR04 ### chefserver details
+172.16.103.158 TRNCLILNXRABAR03.jnittraining.com TRNCLILNXRABAR03 ### chefdk details
+172.16.103.160 TRNCLILNXRABAR05.jnittraining.com TRNCLILNXRABAR05 ### chefclient details
+:wq
+
+step2: install wget
+#yum install wget
+step3: Download chef-DK using wget 
+#wget https://packages.chef.io/files/stable/chefdk/2.0.28/el/7/chefdk-2.0.28-1.el7.x86_64.rpm
+step4: install chef-dk
+rpm -ivh chefdk-2.0.28-1.el7.x86_64.rpm
+
+step5: set system ruby - install ruby
+#yum install ruby
+
+step6: Install git
+#yum install git
+
+step7: Set up the chef-repo
+#chef generate app chef-repo
+step8: Create the .chef directory
+#mkdir -p ~/chef-repo/.chef
+step9: Add .chef to the .gitignore file to prevent uploading the contents of the .chef folder to GitHub
+#echo '.chef' >> ~/chef-repo/.gitignore
+
+step10: Create knife.rb file in chefdk in location /root/chef-repo/.chef/
+syntax:
+vi knife.rb
+current_dir = File.dirname(__FILE__)
+log_level :info
+log_location STDOUT
+node_name 'node_name'
+client_key "#{current_dir}/USER.pem"
+validation_client_name 'ORG_NAME-validator'
+validation_key "#{current_dir}/ORGANIZATION-validator.pem"
+chef_server_url 'https://api.chef.io/organizations/ORG_NAME'
+cache_type 'BasicFile'
+cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
+cookbook_path ["#{current_dir}/../cookbooks"]
+
+example:
+#cat knife.rb
+current_dir = File.dirname(__FILE__)
+log_level :info
+log_location STDOUT
+node_name 'stevedanno'
+client_key "#{current_dir}/stevedanno.pem"
+validation_client_name '4thcoffee-validator'
+validation_key "#{current_dir}/4thcoffee-validator.pem"
+chef_server_url 'https://TRNCLILNXRABAR04.jnittraining.com/organizations/4thcoffee'
+cache_type 'BasicFile'
+cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
+cookbook_path ["#{current_dir}/../cookbooks"]
+
+
+step11: Move .pem files to the .chef directory
+#scp -r root@<chefserver IP address>:/root/organization-validator.pem /root/chef-repo/.chef/
+#scp -r root@<chefserver IP address>:/root/user.pem /root/chef-repo/.chef/
+
+step12: Get SSL certificates from the Chef server
+#knife ssl fetch
+
+step13: Bootstrapping the node:
+#knife bootstrap <chef client IP address> --ssh-user root --ssh-password root1234 --node-name <chef client hostname>
+
+step14: Verify the chef-client install
+#Knife node list
